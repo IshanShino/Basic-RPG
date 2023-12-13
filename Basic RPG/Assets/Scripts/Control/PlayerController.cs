@@ -9,7 +9,7 @@ using System;
 namespace RPG.Control
 {
     public class PlayerController : MonoBehaviour
-    {
+    {   
         void Update()
         {   
             if (InteractWithCombat()) return;
@@ -23,8 +23,13 @@ namespace RPG.Control
             foreach (RaycastHit hit in hits)
             {   
                 CombatTarget target = hit.transform.GetComponent<CombatTarget>();
-                if (target == null) continue;
-
+                
+                if (!GetComponent<Fighter>().CanAttack(target)) 
+                {
+                    continue; // Here continue means to continue the loop, which means to check the next thing in the loop.
+                // So basically it means that if we *can't attack* a target, just move along the loop and check the next target.
+                }
+            
                 if (Input.GetMouseButtonDown(0))
                 {
                     GetComponent<Fighter>().Attack(target);
@@ -43,7 +48,7 @@ namespace RPG.Control
             {
                 if (Input.GetMouseButton(0))
                 {
-                    GetComponent<Mover>().MoveTo(hit.point);
+                    GetComponent<Mover>().StartMoveAction(hit.point);
                 }
                 return true;
             }
