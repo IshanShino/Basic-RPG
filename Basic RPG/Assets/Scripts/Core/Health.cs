@@ -1,16 +1,26 @@
 using UnityEngine;
+using RPG.Saving;
+using Unity.VisualScripting;
+using System;
 
 namespace RPG.Core
 {
-    public class Health : MonoBehaviour
+    public class Health : MonoBehaviour, ISaveable
     {
         [SerializeField] float healthPoints = 100f;
-        bool isDead = false;
+        bool isDead = false;      
 
+        Animator animator;
+
+        void Awake()
+        {
+            animator = GetComponent<Animator>();
+        }
         public bool IsDead()
         {
             return isDead;
         }
+        
         public void TakeDamage(float damage)
         {   
             healthPoints = Mathf.Max(healthPoints - damage, 0);
@@ -29,5 +39,28 @@ namespace RPG.Core
             GetComponent<Animator>().SetTrigger("die");
             GetComponent<ActionScheduler>().CancelCurrentAction();
         }
+
+        //private void Ressurect()
+        //{
+            //if (!isDead) return;
+            //isDead = false;
+            //animator.enabled = false;
+            //animator.enabled = true; // resetting the animator
+        //}
+
+        public object CaptureState()
+        {
+            return healthPoints;
+        }
+
+        public void RestoreState(object state)
+        {
+            healthPoints = (float)state;
+            if (healthPoints == 0)
+            {
+                Die();
+            }
+        }
+
     }
 }

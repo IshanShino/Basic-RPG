@@ -27,7 +27,7 @@ namespace RPG.Combat
 
             if (!GetIsInRange())
             {
-                mover.MoveTo(target.transform.position);
+                mover.MoveTo(target.transform.position, 1f);
             }
             else
             {
@@ -76,13 +76,17 @@ namespace RPG.Combat
         {
             return Vector3.Distance(transform.position, target.transform.position) < WeaponRange;
         }
-
         public void Cancel()
-        {   
-            GetComponent<Animator>().ResetTrigger("attack");
-            GetComponent<Animator>().SetTrigger("stopAttack");
+        {
+            StopAttack();
             target = null;
+            mover.Cancel();
         }
 
+        private void StopAttack()
+        {
+            GetComponent<Animator>().ResetTrigger("attack");
+            GetComponent<Animator>().SetTrigger("stopAttack");
+        }
     }
 }
