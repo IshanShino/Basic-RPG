@@ -1,19 +1,24 @@
 using UnityEngine;
 using UnityEngine.AI;
 using RPG.Core;
-using RPG.Saving;
+using RPG.JsonSaving;
 using Unity.VisualScripting.Antlr3.Runtime.Misc;
 using System.Collections.Generic;
 using Unity.VisualScripting;
+using Newtonsoft.Json.Linq;
 
 namespace RPG.Movement
 {
-    public class Mover : MonoBehaviour, IAction, ISaveable
+    public class Mover : MonoBehaviour, IAction, IJsonSaveable
     {   
         [SerializeField] float maxSpeed = 6f;
         NavMeshAgent navMeshAgent;
         Health health;
-
+        private struct MoverSaveData
+        {
+            public JToken position;
+            public JToken rotation;
+        }
         void Awake() 
         {
             navMeshAgent = GetComponent<NavMeshAgent>();
@@ -53,21 +58,23 @@ namespace RPG.Movement
             GetComponent<Animator>().SetFloat("forwardSpeed", speed);
         }
 
-        public object CaptureState()
+        public JToken CaptureAsJToken()
         {
-            Dictionary<string, object> data = new Dictionary<string, object>();
-            data["position"] = new SerializableVector3(transform.position);
-            data["rotation"] = new SerializableVector3(transform.eulerAngles);
-            return data;
+            return JToken.FromObject(new MoverSaveData()
+            {
+                position = transform.position.ToToken(),
+                rotation = transform.eulerAngles.ToToken()
+            });
         }
 
-        public void RestoreState(object state)
+        public void RestoreFromJToken(JToken state)
         {
-            Dictionary<string, object> data = (Dictionary<string, object>)state;
             navMeshAgent.enabled = false;
-            transform.position = ((SerializableVector3)data["position"]).ToVector();
-            transform.eulerAngles = ((SerializableVector3)data["rotation"]).ToVector();
+            MoverSaveData data = state.ToObject<MoverSaveData>();
+            navMeshAgent.Warp(data.position.ToVector3());
+            transform.eulerAngles = data.rotation.ToVector3();
             navMeshAgent.enabled = true;
         }
     }
+
 }

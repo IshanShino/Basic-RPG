@@ -1,47 +1,55 @@
-using System;
 using System.Collections.Generic;
-using RPG.Core;
+using Newtonsoft.Json.Linq;
 using UnityEditor;
 using UnityEngine;
-using UnityEngine.AI;
 
-namespace RPG.Saving
+namespace RPG.JsonSaving
 {
     [ExecuteAlways]
-    public class SaveableEntity : MonoBehaviour
+    public class JsonSaveableEntity : MonoBehaviour
     {
+    
         [SerializeField] string uniqueIdentifier = "";
-        static Dictionary<string, SaveableEntity> globalLookup = new Dictionary<string, SaveableEntity>();
+
+        // CACHED STATE
+        static Dictionary<string, JsonSaveableEntity> globalLookup = new Dictionary<string, JsonSaveableEntity>();
 
         public string GetUniqueIdentifier()
         {
             return uniqueIdentifier;
         }
-
-        public object CaptureState()
+    
+        public JToken CaptureAsJtoken()
         {
-            Dictionary<string, object> state = new Dictionary<string, object>();
-            foreach (ISaveable saveable in GetComponents<ISaveable>())
+            JObject state = new JObject();
+            IDictionary<string, JToken> stateDict = state;
+            foreach (IJsonSaveable jsonSaveable in GetComponents<IJsonSaveable>())
             {
-                state[saveable.GetType().ToString()] = saveable.CaptureState();
+                JToken token = jsonSaveable.CaptureAsJToken();
+                string component = jsonSaveable.GetType().ToString();
+                Debug.Log($"{name} Capture {component} = {token.ToString()}");
+                stateDict[jsonSaveable.GetType().ToString()] = token;
             }
             return state;
         }
 
-        public void RestoreState(object state)
+        public void RestoreFromJToken(JToken s) 
         {
-            Dictionary<string, object> stateDict = (Dictionary<string, object>)state;
-            foreach (ISaveable saveable in GetComponents<ISaveable>())
+            JObject state = s.ToObject<JObject>();
+            IDictionary<string, JToken> stateDict = state;
+            foreach (IJsonSaveable jsonSaveable in GetComponents<IJsonSaveable>())
             {
-                string typeString = saveable.GetType().ToString();
-                if (stateDict.ContainsKey(typeString))
+                string component = jsonSaveable.GetType().ToString();
+                if (stateDict.ContainsKey(component))
                 {
-                    saveable.RestoreState(stateDict[typeString]);
+
+                    Debug.Log($"{name} Restore {component} =>{stateDict[component].ToString()}");
+                    jsonSaveable.RestoreFromJToken(stateDict[component]);
                 }
             }
         }
 
-#if UNITY_EDITOR
+    #if UNITY_EDITOR
         private void Update() {
             if (Application.IsPlaying(gameObject)) return;
             if (string.IsNullOrEmpty(gameObject.scene.path)) return;
@@ -57,7 +65,7 @@ namespace RPG.Saving
 
             globalLookup[property.stringValue] = this;
         }
-#endif
+    #endif
 
         private bool IsUnique(string candidate)
         {
@@ -79,5 +87,8 @@ namespace RPG.Saving
 
             return false;
         }
+        
+    
     }
 }
+

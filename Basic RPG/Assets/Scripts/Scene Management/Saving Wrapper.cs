@@ -2,7 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using RPG.Saving;
+using RPG.JsonSaving;
 
 namespace RPG.SceneManagement
 {
@@ -14,8 +14,8 @@ namespace RPG.SceneManagement
         {   
             Fader fader = FindObjectOfType<Fader>();
             fader.FadeOutImmediate();
-            yield return GetComponent<SavingSystem>().LoadLastScene(defaultSaveFile);
-            yield return fader.FadeIn(0.2f);
+            yield return GetComponent<JsonSavingSystem>().LoadLastScene(defaultSaveFile);
+            yield return fader.FadeIn(0.3f);
         }
         void Update()
         {
@@ -31,12 +31,12 @@ namespace RPG.SceneManagement
 
         public void Save()
         {
-            GetComponent<SavingSystem>().Save(defaultSaveFile);
+            GetComponent<JsonSavingSystem>().Save(defaultSaveFile);
         }
 
         public void Load()
         {
-            GetComponent<SavingSystem>().Load(defaultSaveFile);
+            GetComponent<JsonSavingSystem>().Load(defaultSaveFile);
         }
     }
 
