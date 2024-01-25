@@ -4,19 +4,33 @@ using System.Runtime.InteropServices;
 using UnityEngine;
 using RPG.Movement;
 using RPG.Core;
+using Unity.VisualScripting;
+using RPG.JsonSaving;
+using Newtonsoft.Json.Linq;
 
 namespace RPG.Combat
 {
-    public class Fighter : MonoBehaviour, IAction
-    {   
-        [SerializeField] float WeaponRange = 2f;
+    public class Fighter : MonoBehaviour, IAction, IJsonSaveable
+    {        
         [SerializeField] float timeBetweenAttacks = 1.5f;
-        [SerializeField] float weaponDamage = 20f;
+        [SerializeField] Transform rightHand = null;
+        [SerializeField] Transform leftHand = null;
+        [SerializeField] Weapon defaultWeapon = null;
         Health target;
         float timeSinceLastAttack = Mathf.Infinity;
         Mover mover;
-        void Start()
+        Weapon currentWeapon = null;
+        GameObject equippedWeapon = null;
+
+        void Awake()
         {
+            if (currentWeapon ==  null)
+            {
+                EquipWeapon(defaultWeapon);
+            }  
+        } 
+        void Start()
+        {              
             mover = GetComponent<Mover>();   
         }
         void Update()
@@ -30,7 +44,7 @@ namespace RPG.Combat
                 mover.MoveTo(target.transform.position, 1f);
             }
             else
-            {
+            {   
                 mover.Cancel();
                 AttackBehaviour();
             }
@@ -69,12 +83,25 @@ namespace RPG.Combat
         void Hit()
         {   
             if (target ==  null) return;
-            target.TakeDamage(weaponDamage);
+            if (currentWeapon.HasProjectile())
+            {
+                currentWeapon.LaunchProjectile(rightHand, leftHand, target);
+            }
+            else
+            {
+                target.TakeDamage(currentWeapon.WeaponDamage);
+            }
+        }
+
+        // Animation Event
+        void Shoot()
+        {
+            Hit();
         }
 
         private bool GetIsInRange()
         {
-            return Vector3.Distance(transform.position, target.transform.position) < WeaponRange;
+            return Vector3.Distance(transform.position, target.transform.position) < currentWeapon.WeaponRange;
         }
         public void Cancel()
         {
@@ -87,6 +114,32 @@ namespace RPG.Combat
         {
             GetComponent<Animator>().ResetTrigger("attack");
             GetComponent<Animator>().SetTrigger("stopAttack");
+        }
+
+        public void EquipWeapon(Weapon weapon)
+        {   
+            if (weapon != null)
+            {   
+                currentWeapon = weapon;
+                if (equippedWeapon != null)
+                {
+                    Destroy(equippedWeapon);
+                }
+                Animator animator = GetComponent<Animator>();
+                equippedWeapon = weapon.Spawn(rightHand, leftHand, animator);
+            }
+        }
+
+        public JToken CaptureAsJToken()
+        {
+            return JToken.FromObject(currentWeapon.name);
+        }
+
+        public void RestoreFromJToken(JToken state)
+        {
+            string weaponName = state.ToObject<string>();
+            Weapon weapon = Resources.Load<Weapon>(weaponName);
+            EquipWeapon(weapon);
         }
     }
 }

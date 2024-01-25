@@ -9,6 +9,7 @@ namespace RPG.Core
     public class Health : MonoBehaviour, IJsonSaveable
     {
         [SerializeField] float healthPoints = 100f;
+        public float HealthPoints { get {return healthPoints; } }
         bool isDead = false;      
 
         Animator animator;
@@ -39,6 +40,7 @@ namespace RPG.Core
             isDead = true;
             GetComponent<Animator>().SetTrigger("die");
             GetComponent<ActionScheduler>().CancelCurrentAction();
+            GetComponent<Collider>().enabled = false;
         }
 
         //private void Ressurect()
@@ -60,6 +62,11 @@ namespace RPG.Core
             if (healthPoints == 0)
             {
                 Die();
+            }
+            else
+            {   
+                isDead = false;
+                animator.Rebind();
             }
         }
     }
