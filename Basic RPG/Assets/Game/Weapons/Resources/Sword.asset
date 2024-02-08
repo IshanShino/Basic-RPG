@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5609451f130a4ff45aeee9e13b237906, type: 3}
   m_Name: Sword
   m_EditorClassIdentifier: 
-  weaponRange: 2
+  weaponRange: 1.8
   weaponDamage: 30
   equippedWeapon: {fileID: 1031473849909104970, guid: 23f1a9518a789224c8b154428af3f86f, type: 3}
   projectile: {fileID: 0}

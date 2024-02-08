@@ -20,7 +20,7 @@ namespace RPG.SceneManagement
 
         public IEnumerator FadeOutIn()
         {   
-            yield return FadeOut(3f);
+            yield return FadeOut(2f);
             print("Faded Out.");
             yield return FadeIn(1f);
             print("Faded In.");

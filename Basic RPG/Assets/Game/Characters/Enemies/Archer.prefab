@@ -16,7 +16,15 @@ PrefabInstance:
       propertyPath: m_Materials.Array.data[0]
       value: 
       objectReference: {fileID: 2100000, guid: bfbe2e8b331e2cc42be1591f949c0e41, type: 2}
+    - target: {fileID: 2138409503754819097, guid: b1bb82c49d4e8d54bbaafb582b6aa7e1, type: 3}
+      propertyPath: characterClass
+      value: 4
+      objectReference: {fileID: 0}
     - target: {fileID: 2917820995541929659, guid: b1bb82c49d4e8d54bbaafb582b6aa7e1, type: 3}
+      propertyPath: chaseDistance
+      value: 20
+      objectReference: {fileID: 0}
+    - target: {fileID: 3044945706874011285, guid: b1bb82c49d4e8d54bbaafb582b6aa7e1, type: 3}
       propertyPath: chaseDistance
       value: 20
       objectReference: {fileID: 0}
@@ -76,6 +84,14 @@ PrefabInstance:
       propertyPath: timeBetweenAttacks
       value: 2.5
       objectReference: {fileID: 0}
+    - target: {fileID: 7882176840062394967, guid: b1bb82c49d4e8d54bbaafb582b6aa7e1, type: 3}
+      propertyPath: characterClass
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 8595529439380092185, guid: b1bb82c49d4e8d54bbaafb582b6aa7e1, type: 3}
+      propertyPath: defaultWeapon
+      value: 
+      objectReference: {fileID: 11400000, guid: 7d1be76c39e5ec14aa9dda57fa947d53, type: 2}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []

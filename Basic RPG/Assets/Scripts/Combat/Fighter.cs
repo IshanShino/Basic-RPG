@@ -1,16 +1,16 @@
-using System.Collections;
-using System.Collections.Generic;
-using System.Runtime.InteropServices;
 using UnityEngine;
 using RPG.Movement;
 using RPG.Core;
-using Unity.VisualScripting;
 using RPG.JsonSaving;
 using Newtonsoft.Json.Linq;
+using RPG.Attributes;
+using RPG.Stats;
+using System.Collections.Generic;
+using RPG.Utils;
 
 namespace RPG.Combat
 {
-    public class Fighter : MonoBehaviour, IAction, IJsonSaveable
+    public class Fighter : MonoBehaviour, IAction, IJsonSaveable, IModifierProvider
     {        
         [SerializeField] float timeBetweenAttacks = 1.5f;
         [SerializeField] Transform rightHand = null;
@@ -19,20 +19,26 @@ namespace RPG.Combat
         Health target;
         float timeSinceLastAttack = Mathf.Infinity;
         Mover mover;
-        Weapon currentWeapon = null;
+        LazyValue<Weapon> currentWeapon;
         GameObject equippedWeapon = null;
 
         void Awake()
-        {
-            if (currentWeapon ==  null)
-            {
-                EquipWeapon(defaultWeapon);
-            }  
+        {   
+            mover = GetComponent<Mover>();  
+            currentWeapon = new LazyValue<Weapon>(SetDefaultWeapon);
+           
         } 
         void Start()
         {              
-            mover = GetComponent<Mover>();   
+            currentWeapon.ForceInit();
         }
+
+        Weapon SetDefaultWeapon()
+        {
+            AttachWeapon(defaultWeapon);
+            return defaultWeapon;
+        }
+
         void Update()
         {   
             timeSinceLastAttack += Time.deltaTime;
@@ -83,13 +89,15 @@ namespace RPG.Combat
         void Hit()
         {   
             if (target ==  null) return;
-            if (currentWeapon.HasProjectile())
+
+            float damage = GetComponent<BaseStats>().GetStat(Stat.Damage);
+            if (currentWeapon.value.HasProjectile())
             {
-                currentWeapon.LaunchProjectile(rightHand, leftHand, target);
+                currentWeapon.value.LaunchProjectile(rightHand, leftHand, target, damage);
             }
             else
             {
-                target.TakeDamage(currentWeapon.WeaponDamage);
+                target.TakeDamage(damage);
             }
         }
 
@@ -99,9 +107,24 @@ namespace RPG.Combat
             Hit();
         }
 
+        public IEnumerable<float> GetAdditiveModifiers(Stat stat)
+        {
+            if(stat == Stat.Damage)
+            {
+                yield return currentWeapon.value.WeaponDamage;
+            }
+        }
+        public IEnumerable<float> GetPercentageModifiers(Stat stat)
+        {
+            if(stat == Stat.Damage)
+            {
+                yield return currentWeapon.value.PercentageBonus;
+            }
+        }
+
         private bool GetIsInRange()
         {
-            return Vector3.Distance(transform.position, target.transform.position) < currentWeapon.WeaponRange;
+            return Vector3.Distance(transform.position, target.transform.position) < currentWeapon.value.WeaponRange;
         }
         public void Cancel()
         {
@@ -119,20 +142,30 @@ namespace RPG.Combat
         public void EquipWeapon(Weapon weapon)
         {   
             if (weapon != null)
-            {   
-                currentWeapon = weapon;
+            {
+                currentWeapon.value = weapon;
                 if (equippedWeapon != null)
                 {
                     Destroy(equippedWeapon);
                 }
-                Animator animator = GetComponent<Animator>();
-                equippedWeapon = weapon.Spawn(rightHand, leftHand, animator);
+                AttachWeapon(weapon);
             }
+        }
+
+        private void AttachWeapon(Weapon weapon)
+        {
+            Animator animator = GetComponent<Animator>();
+            equippedWeapon = weapon.Spawn(rightHand, leftHand, animator);
+        }
+
+        public Health GetTarget()
+        {
+            return target;
         }
 
         public JToken CaptureAsJToken()
         {
-            return JToken.FromObject(currentWeapon.name);
+            return JToken.FromObject(currentWeapon.value.name);
         }
 
         public void RestoreFromJToken(JToken state)

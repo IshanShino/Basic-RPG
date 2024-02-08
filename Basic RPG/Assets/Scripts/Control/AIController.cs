@@ -1,13 +1,10 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.Timeline;
 using RPG.Combat;
 using RPG.Core;
-using UnityEditor;
 using RPG.Movement;
 using System;
-using UnityEngine.AI;
+using RPG.Attributes;
+using RPG.Utils;
 
 namespace RPG.Control
 {
@@ -24,18 +21,30 @@ namespace RPG.Control
         Fighter fighter;
         GameObject player;
         Health health;
-        Vector3 guardPosition;
+        Mover mover;
+        LazyValue<Vector3> guardPosition;
         float timeSinceLastSawPlayer = Mathf.Infinity;
         float timeSpentOnCurrentWaypoint = Mathf.Infinity;
         int currentWaypointIndex = 0;
 
-        void Start()
-        {   
+        void Awake()
+        {
             fighter = GetComponent<Fighter>();
-            player = GameObject.FindWithTag("Player");
+            mover = GetComponent<Mover>();
             health = GetComponent<Health>();
-            guardPosition = transform.position;
+            player = GameObject.FindWithTag("Player");
+            guardPosition = new LazyValue<Vector3>(GetInitialPosition);
         }
+        void Start()
+        {
+            guardPosition.ForceInit();
+        }
+
+        Vector3 GetInitialPosition()
+        {
+            return transform.position;
+        }
+
         void Update()
         {
             if (health.IsDead()) return;
@@ -68,7 +77,7 @@ namespace RPG.Control
         }
         private void PatrolBehaviour()
         {   
-            Vector3 nextPosition = guardPosition;
+            Vector3 nextPosition = guardPosition.value;
             if (patrolPath != null)
             {   
                 if (AtWaypoint())
@@ -81,7 +90,7 @@ namespace RPG.Control
 
             if (timeSpentOnCurrentWaypoint > waypointDwellTime)
             {
-                GetComponent<Mover>().StartMoveAction(nextPosition, patrolSpeedFraction);
+                mover.StartMoveAction(nextPosition, patrolSpeedFraction);
             }
         }
 

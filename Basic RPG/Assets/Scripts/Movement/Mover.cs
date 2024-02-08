@@ -6,6 +6,7 @@ using Unity.VisualScripting.Antlr3.Runtime.Misc;
 using System.Collections.Generic;
 using Unity.VisualScripting;
 using Newtonsoft.Json.Linq;
+using RPG.Attributes;
 
 namespace RPG.Movement
 {
@@ -22,11 +23,9 @@ namespace RPG.Movement
         void Awake() 
         {
             navMeshAgent = GetComponent<NavMeshAgent>();
-        }
-        void Start()
-        {
             health = GetComponent<Health>();
         }
+
         void Update()
         {   
             navMeshAgent.enabled = !health.IsDead();           

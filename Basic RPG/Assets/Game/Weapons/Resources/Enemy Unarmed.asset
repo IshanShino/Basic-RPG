@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5609451f130a4ff45aeee9e13b237906, type: 3}
   m_Name: Enemy Unarmed
   m_EditorClassIdentifier: 
-  weaponRange: 2
+  weaponRange: 1
   weaponDamage: 10
   equippedWeapon: {fileID: 0}
   projectile: {fileID: 0}

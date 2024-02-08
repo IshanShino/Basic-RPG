@@ -1,22 +1,41 @@
-using System.Collections;
-using System.Collections.Generic;
-using System.Numerics;
 using UnityEngine;
 using RPG.Movement;
 using RPG.Combat;
-using System;
-using RPG.Core;
+using RPG.Attributes;
+using UnityEngine.EventSystems;
 
 namespace RPG.Control
 {   
     public class PlayerController : MonoBehaviour
     {   
+        [SerializeField] CursorType movementCursor;
+        [SerializeField] CursorType combatCursor;
+        [SerializeField] CursorType noneCursor;
+        [SerializeField] CursorType uICursor;
         void Update()
         {   
-            if (GetComponent<Health>().IsDead()) return;
-            
+            if(InteractWithUI()) return;
+        
+            if (GetComponent<Health>().IsDead()) 
+            {   
+                noneCursor.SetCursor();
+                return;
+            }
+
             if (InteractWithCombat()) return;
             if (InteractWithMovement()) return;
+
+            noneCursor.SetCursor();
+        }
+
+        private bool InteractWithUI()
+        {
+            if (EventSystem.current.IsPointerOverGameObject()) // checks if the pointer is over an UI game object. bool return.
+            {
+                uICursor.SetCursor();
+                return true;
+            }
+            return false;
         }
 
         private bool InteractWithCombat()
@@ -38,6 +57,7 @@ namespace RPG.Control
                 {
                     GetComponent<Fighter>().Attack(target.gameObject);
                 }
+                combatCursor.SetCursor();
                 return true;
             }
             return false;
@@ -54,6 +74,7 @@ namespace RPG.Control
                 {
                     GetComponent<Mover>().StartMoveAction(hit.point, 1f);
                 }
+                movementCursor.SetCursor();
                 return true;
             }
             return false;
