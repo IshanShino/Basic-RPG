@@ -2053,15 +2053,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 705908188521244939, guid: d510426fa724f3244a0a55b0cea5d57a, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 1.5746117
+      value: 0.322464
       objectReference: {fileID: 0}
     - target: {fileID: 705908188521244939, guid: d510426fa724f3244a0a55b0cea5d57a, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 12.3000345
+      value: 10.808089
       objectReference: {fileID: 0}
     - target: {fileID: 705908188521244939, guid: d510426fa724f3244a0a55b0cea5d57a, type: 3}
       propertyPath: m_LocalPosition.z
-      value: -11.27227
+      value: -11.481371
       objectReference: {fileID: 0}
     - target: {fileID: 1198429992012971932, guid: d510426fa724f3244a0a55b0cea5d57a, type: 3}
       propertyPath: persistentObjectPrefab
@@ -2117,15 +2117,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 9202648331490147291, guid: d510426fa724f3244a0a55b0cea5d57a, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 1.5746117
+      value: 0.322464
       objectReference: {fileID: 0}
     - target: {fileID: 9202648331490147291, guid: d510426fa724f3244a0a55b0cea5d57a, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 12.3000345
+      value: 10.808089
       objectReference: {fileID: 0}
     - target: {fileID: 9202648331490147291, guid: d510426fa724f3244a0a55b0cea5d57a, type: 3}
       propertyPath: m_LocalPosition.z
-      value: -11.27227
+      value: -11.481371
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -2564,6 +2564,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 895822611149091751, guid: ab219bbbfbe52c74f9f87312708c7f8f, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: -9.299988
+      objectReference: {fileID: 0}
     - target: {fileID: 5354751064375328610, guid: ab219bbbfbe52c74f9f87312708c7f8f, type: 3}
       propertyPath: m_Name
       value: HUD
@@ -2613,7 +2617,8 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
-    m_RemovedGameObjects: []
+    m_RemovedGameObjects:
+    - {fileID: 2577463671375931716, guid: ab219bbbfbe52c74f9f87312708c7f8f, type: 3}
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: ab219bbbfbe52c74f9f87312708c7f8f, type: 3}

@@ -15,7 +15,7 @@ MonoBehaviour:
   weaponRange: 10
   weaponDamage: 15
   percentageBonus: 0
-  equippedWeapon: {fileID: 71663940013316213, guid: bb62cdf6d194b4d429480d1a827dfd37, type: 3}
+  equippedWeapon: {fileID: -3612320435738206480, guid: bb62cdf6d194b4d429480d1a827dfd37, type: 3}
   projectile: {fileID: 1816442983396162290, guid: dc490ebdbe4bc7946a05c36d58f657a7, type: 3}
   animatorOverride: {fileID: 22100000, guid: 45b7fafc42fc670408a436aa749a148a, type: 2}
   isRightHanded: 0

@@ -15,7 +15,7 @@ namespace RPG.Stats
         [SerializeField] CharacterClass characterClass;
         [SerializeField] ProgressionStats progressionStats = null;
         [SerializeField] GameObject levelUpEffect = null;
-
+        [SerializeField] AudioSource levelUpAudio = null;
         public event Action onLevelUp;
         ExperiencePoints experiencePoints;
 
@@ -51,6 +51,7 @@ namespace RPG.Stats
             {   
                 currentLevel.value = newLevel;
                 Instantiate(levelUpEffect, transform);
+                levelUpAudio.Play();
                 onLevelUp();
             }        
         }
@@ -136,7 +137,7 @@ namespace RPG.Stats
 
         public JToken CaptureAsJToken()
         {
-            return JToken.FromObject(currentLevel);
+            return JToken.FromObject(currentLevel.value);
         }
         public void RestoreFromJToken(JToken state)
         {

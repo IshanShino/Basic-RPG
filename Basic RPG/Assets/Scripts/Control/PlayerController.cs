@@ -1,85 +1,122 @@
 using UnityEngine;
 using RPG.Movement;
-using RPG.Combat;
 using RPG.Attributes;
 using UnityEngine.EventSystems;
+using RPG.Core;
+using System;
+using UnityEngine.AI;
 
 namespace RPG.Control
 {   
     public class PlayerController : MonoBehaviour
     {   
         [SerializeField] CursorType movementCursor;
-        [SerializeField] CursorType combatCursor;
         [SerializeField] CursorType noneCursor;
         [SerializeField] CursorType uICursor;
+        [SerializeField] CursorType combatCursor;
+        public CursorType CombatCursor { get {return combatCursor; } }
+        [SerializeField] CursorType pickupCursor;
+        public CursorType PickupCursor { get {return pickupCursor; } }
+
+        [SerializeField] float sphereCastRadius = 0.7f;
+
         void Update()
         {   
             if(InteractWithUI()) return;
         
             if (GetComponent<Health>().IsDead()) 
             {   
-                noneCursor.SetCursor();
+                GetCursor(noneCursor);
                 return;
             }
-
-            if (InteractWithCombat()) return;
+            
+            if (InteractWithComponents()) return;
             if (InteractWithMovement()) return;
 
-            noneCursor.SetCursor();
+            GetCursor(noneCursor);
         }
 
         private bool InteractWithUI()
         {
             if (EventSystem.current.IsPointerOverGameObject()) // checks if the pointer is over an UI game object. bool return.
             {
-                uICursor.SetCursor();
+                GetCursor(uICursor);
                 return true;
             }
             return false;
         }
-
-        private bool InteractWithCombat()
+        private bool InteractWithComponents()
         {   
-            RaycastHit[] hits  = Physics.RaycastAll(GetMouseRay());
+            RaycastHit[] hits  = RaycastAllSorted();
             foreach (RaycastHit hit in hits)
-            {   
-                CombatTarget target = hit.transform.GetComponent<CombatTarget>();
+            {
+                IRaycastable[] raycastables = hit.transform.GetComponents<IRaycastable>();
 
-                if (target == null) continue;
-
-                if (!GetComponent<Fighter>().CanAttack(target.gameObject)) 
+                foreach (IRaycastable raycastable in raycastables)
                 {
-                    continue; // Here continue means to continue the loop, which means to check the next thing in the loop.
-                // So basically it means that if we *can't attack* a target, just move along the loop and check the next target.
+                    if (raycastable.HandleRaycast(this))
+                    {   
+                        GetCursor(raycastable.GetCursorType(this));
+                        return true;
+                    }
                 }
-            
-                if (Input.GetMouseButton(0))
-                {
-                    GetComponent<Fighter>().Attack(target.gameObject);
-                }
-                combatCursor.SetCursor();
-                return true;
             }
             return false;
+        }
+
+        private RaycastHit[] RaycastAllSorted()
+        {
+            RaycastHit[] hits = Physics.SphereCastAll(GetMouseRay(), sphereCastRadius);    // Get all hits
+            float[] distances = new float[hits.Length]; // build distance array 
+            for (int i = 0; i < hits.Length; i++) 
+            {   
+                distances[i] = hits[i].distance;  //The distance from the ray's origin to the impact point.
+            }
+            Array.Sort(distances, hits);                // sort the hits based on the distances
+            return hits;
         }
 
         private bool InteractWithMovement()
         {          
-            RaycastHit hit;
-            bool hasHit = Physics.Raycast(GetMouseRay(), out hit);
+            Vector3 target;
+            bool hasHit = RaycastNavmesh(out target);
+            if (hasHit)
+            {   
+                if (!GetComponent<Mover>().CanMoveTo(target)) return false;
 
-            if (hasHit == true)
-            {
                 if (Input.GetMouseButton(0))
                 {
-                    GetComponent<Mover>().StartMoveAction(hit.point, 1f);
+                    GetComponent<Mover>().StartMoveAction(target, 1f);
                 }
-                movementCursor.SetCursor();
+                GetCursor(movementCursor);
                 return true;
             }
             return false;
         }
 
+        private bool RaycastNavmesh(out Vector3 target)
+        {   
+            target = new Vector3();
+
+            RaycastHit hit;
+            bool hasHit = Physics.Raycast(GetMouseRay(), out hit);
+            
+            if (!hasHit) return false;       
+
+            NavMeshHit navMeshHit;
+            bool hasCastToNavmesh = NavMesh.SamplePosition(hit.point, out navMeshHit, 1f, NavMesh.AllAreas);
+
+            if (!hasCastToNavmesh) return false;
+
+            target = navMeshHit.position;  
+
+            return true;
+        }
+
+        public void GetCursor(CursorType cursorType)
+        {
+            cursorType.SetCursor();
+        }
         private static Ray GetMouseRay()
         {
             return Camera.main.ScreenPointToRay(Input.mousePosition);

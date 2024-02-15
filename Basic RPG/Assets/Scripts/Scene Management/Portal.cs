@@ -1,12 +1,8 @@
-using System;
 using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
 using RPG.Control;
 using UnityEngine;
 using UnityEngine.AI;
 using UnityEngine.SceneManagement;
-using UnityEngine.UI;
 
 namespace RPG.SceneManagement
 {
@@ -27,27 +23,35 @@ namespace RPG.SceneManagement
         private void OnTriggerEnter(Collider other) 
         {
             if (other.tag == "Player")
-            {
+            {   
                 StartCoroutine(Transition());
             }
         }
 
         private IEnumerator Transition()
         {   
+            if (sceneToLoad < 0)
+            {   
+                Debug.LogError("Scene not found!");
+                yield break;
+            }
             DontDestroyOnLoad(gameObject);
 
             Fader fader = FindObjectOfType<Fader>();
+            
+            PlayerController playerController = GameObject.FindWithTag("Player").GetComponent<PlayerController>();
+            playerController.enabled = false;
 
             yield return fader.FadeOut(fadeOutTime);
 
             SavingWrapper wrapper =  FindObjectOfType<SavingWrapper>();
             wrapper.Save();
-
+            
             yield return SceneManager.LoadSceneAsync(sceneToLoad);
 
-            GameObject player = GameObject.FindWithTag("Player");
-            player.GetComponent<PlayerController>().enabled = false;
-
+            PlayerController newPlayerController = GameObject.FindWithTag("Player").GetComponent<PlayerController>();
+            newPlayerController.enabled = false;
+           
             wrapper.Load();
 
             Portal otherPortal = GetOtherPortal();
@@ -56,10 +60,10 @@ namespace RPG.SceneManagement
             wrapper.Save();
 
             yield return new WaitForSeconds(fadeWaitTime);
-            yield return fader.FadeIn(fadeInTime);
+            yield return fader.FadeIn(fadeInTime); // for immediate fade in and control enabled, just remove yield return
 
-            Destroy(gameObject);
-            player.GetComponent<PlayerController>().enabled = true;
+            newPlayerController.GetComponent<PlayerController>().enabled = true;
+            Destroy(gameObject);   
         }
 
         private void UpdatePlayer(Portal otherPortal)

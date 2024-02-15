@@ -4,7 +4,7 @@ using Newtonsoft.Json.Linq;
 using RPG.Core;
 using RPG.Stats;
 using RPG.Utils;
-using Unity.VisualScripting.FullSerializer;
+using UnityEngine.Events;
 
 namespace RPG.Attributes
 {
@@ -13,6 +13,8 @@ namespace RPG.Attributes
         LazyValue<float> healthPoints;
         public float HealthPoints { get {return healthPoints.value; } }
         [SerializeField] float regenPercentage = 80f;
+        [SerializeField] UnityEvent<float> takeDamage;
+        [SerializeField] UnityEvent onDie;
         bool isDead = false;      
 
         BaseStats baseStats;
@@ -54,12 +56,17 @@ namespace RPG.Attributes
         
         public void TakeDamage(float damage)
         {   
-            print(gameObject.name + " took damage: " + damage);
-            healthPoints.value = Mathf.Max(healthPoints.value - damage, 0);
+            healthPoints.value = Mathf.Max(healthPoints.value - damage, 0); 
+
             if (healthPoints.value == 0)
-            {
+            {   
+                onDie.Invoke();
                 Die();
                 AwardExpPoints();
+            }
+            else
+            {
+                takeDamage.Invoke(damage);
             }
         }
 
@@ -70,12 +77,12 @@ namespace RPG.Attributes
             isDead = true;
             GetComponent<Animator>().SetTrigger("die");
             GetComponent<ActionScheduler>().CancelCurrentAction();
-            GetComponent<Collider>().enabled = false;
+            GetComponent<Collider>().enabled = false;          
         }
 
-        public float GetPercentage()
+        public float GetFraction()
         {
-            return healthPoints.value / GetComponent<BaseStats>().GetStat(Stat.Health)  * 100;
+            return healthPoints.value/GetMaxHP();
         }
         public float GetMaxHP()
         {
@@ -103,7 +110,7 @@ namespace RPG.Attributes
 
         public JToken CaptureAsJToken()
         {
-            return JToken.FromObject(healthPoints);
+            return JToken.FromObject(healthPoints.value);
         }
 
         public void RestoreFromJToken(JToken state)

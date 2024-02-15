@@ -14,7 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   weaponRange: 1
   weaponDamage: 15
-  equippedWeapon: {fileID: 0}
+  percentageBonus: 0
+  equippedWeapon: {fileID: 2830852782477321863, guid: b8f1752d5f8fef44baa867031615643b, type: 3}
   projectile: {fileID: 0}
   animatorOverride: {fileID: 0}
   isRightHanded: 1

@@ -1,5 +1,7 @@
 using RPG.Attributes;
+using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.Events;
 
 namespace RPG.Combat
 {
@@ -10,6 +12,7 @@ namespace RPG.Combat
         [SerializeField] GameObject hitEffect = null;
         [SerializeField] GameObject[] destroyAfterImpact;
         [SerializeField] float lifeAfterImpact = 1f;
+        [SerializeField] UnityEvent onProjectileHit;
         Health target = null;
         float damage = 0f;
 
@@ -51,13 +54,14 @@ namespace RPG.Combat
             if (other.GetComponent<Health>() != target) return;
             target.TakeDamage(damage);
 
-            if (hitEffect !=null)
+            onProjectileHit.Invoke();
+            if (hitEffect != null)
             {
                 Instantiate(hitEffect, GetAimLocation(), transform.rotation);
             }
 
             foreach (GameObject toDestroy in destroyAfterImpact)
-            {
+            {   
                 Destroy(toDestroy);
             }
 

@@ -32,6 +32,10 @@ PrefabInstance:
       propertyPath: m_Materials.Array.data[0]
       value: 
       objectReference: {fileID: 2100000, guid: 01b2546c969fe814794af634cb4534f4, type: 2}
+    - target: {fileID: 4149023038746015554, guid: b1bb82c49d4e8d54bbaafb582b6aa7e1, type: 3}
+      propertyPath: combatCursor
+      value: 
+      objectReference: {fileID: 11400000, guid: 6e80a42b36635b84ea28dde95905ebaa, type: 2}
     - target: {fileID: 4660074499712740701, guid: b1bb82c49d4e8d54bbaafb582b6aa7e1, type: 3}
       propertyPath: m_RootOrder
       value: 0

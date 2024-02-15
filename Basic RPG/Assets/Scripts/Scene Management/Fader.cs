@@ -8,6 +8,7 @@ namespace RPG.SceneManagement
     public class Fader : MonoBehaviour
     {   
         CanvasGroup canvasGroup;
+        Coroutine currentActiveFade = null;
         private void Awake()
         {
             canvasGroup = GetComponent<CanvasGroup>();
@@ -18,28 +19,42 @@ namespace RPG.SceneManagement
             canvasGroup.alpha = 1;
         }
 
-        public IEnumerator FadeOutIn()
+        // public IEnumerator FadeOutIn()
+        // {   
+        //     yield return FadeOut(2f);
+        //     print("Faded Out.");
+        //     yield return FadeIn(1f);
+        //     print("Faded In.");
+        // }
+        public Coroutine FadeOut(float time)
+        {       
+            return Fade(1, time);
+        }
+        public Coroutine FadeIn(float time)
+        {
+           return Fade(0, time);
+        }
+
+        private Coroutine Fade(float target, float time)
         {   
-            yield return FadeOut(2f);
-            print("Faded Out.");
-            yield return FadeIn(1f);
-            print("Faded In.");
+            if (currentActiveFade != null)   // cancel current coroutine 
+            {
+                StopCoroutine(currentActiveFade);  
+            }
+                 
+            currentActiveFade = StartCoroutine(FadeRoutine(target, time));  // run fadeout coroutine
+            
+            return currentActiveFade;
         }
-        public IEnumerator FadeOut(float time)
+
+        private IEnumerator FadeRoutine(float target, float time)
         {
-            while(canvasGroup.alpha < 1) 
+            while(!Mathf.Approximately(canvasGroup.alpha, target)) 
             {   
-                canvasGroup.alpha += Time.deltaTime / time;
+                canvasGroup.alpha = Mathf.MoveTowards(canvasGroup.alpha, target, Time.deltaTime / time);
                 yield return null;
             }
         }
-        public IEnumerator FadeIn(float time)
-        {
-            while(canvasGroup.alpha > 0) 
-            {   
-                canvasGroup.alpha -= Time.deltaTime / time;
-                yield return null;
-            }
-        }
+
     }
 }
